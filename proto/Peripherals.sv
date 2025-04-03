@@ -2,6 +2,8 @@ module Peripherals
     import RS5_pkg::*;
 #(
     parameter i_cnt = 1,
+    parameter int unsigned CLK_FREQUENCE = 100_000_000,
+	parameter int unsigned BAUD_RATE 	 = 115_200,
     parameter CLKS_PER_BIT_UART = 868
 )
 (
@@ -13,7 +15,6 @@ module Peripherals
     input  logic [31:0]     data_address_i,
     input  logic [31:0]     data_i,
     output logic [31:0]     data_o,
-    input  logic            BTND,
     output logic            UART_TX,
     input  logic            UART_RX,
     output logic            stall_o,
@@ -30,7 +31,7 @@ module Peripherals
     logic [7:0]     UART_RX_data;
     logic [7:0]     UART_RX_data_reg;
     logic           UART_RX_irq;
-    logic           BTND_debounced, BTND_debounced_r, button_detected, button_irq, button_ack;
+    
 
     
 
@@ -67,39 +68,8 @@ module Peripherals
 
     logic UART_RX_ACK;
 
-    assign interrupt_req_o[1]   = button_irq;
-    assign interrupt_req_o[2]   = UART_RX_irq;
-
-    assign button_ack           = interrupt_ack_i[1];
-    assign UART_RX_ACK          = interrupt_ack_i[2];
-
-//////////////////////////////////////////////////////////////////////////////
-// BUTTON
-//////////////////////////////////////////////////////////////////////////////
-
-    always_ff @(posedge clk or negedge reset_n) begin
-        if (!reset_n) begin
-            button_irq <= 0;
-        end
-        else if (button_detected == 1'b1) begin
-            button_irq <= 1;
-        end
-        else if (button_ack == 1'b1) begin
-            button_irq <= 0;
-        end
-    end
-
-    debouncer #(.DEBNC_CLOCKS(2**10), .PORT_WIDTH(1)) Debouncer (
-        .CLK_I      (clk),
-        .SIGNAL_I   (BTND),
-        .SIGNAL_O   (BTND_debounced)
-    );
-
-    always_ff @(posedge clk) begin
-        BTND_debounced_r <= BTND_debounced;
-    end
-    
-    assign button_detected = (~BTND_debounced_r & BTND_debounced);
+    assign interrupt_req_o[1]   = UART_RX_irq;
+    assign UART_RX_ACK          = interrupt_ack_i[1];
 
 //////////////////////////////////////////////////////////////////////////////
 // STALL GENERATION
@@ -188,11 +158,15 @@ module Peripherals
         end
     end
 
-    UART_RX_CTRL #(CLKS_PER_BIT_UART) UART_RX_CTRL(
-        .i_Clock    (clk),
-        .i_Rx_Serial(UART_RX),
-        .o_Rx_DV    (UART_RX_ready),
-        .o_Rx_Byte  (UART_RX_data)
+    UART_RX_CTRL #(
+        .CLK_FREQUENCE(CLK_FREQUENCE),
+        .BAUD_RATE(BAUD_RATE) 
+    ) UART_RX_CTRL (
+        .clk              (clk),
+        .reset_n          (reset_n),
+        .uart_rx_serial_i (UART_RX),
+        .uart_dv_o        (UART_RX_ready),
+        .uart_data_o      (UART_RX_data)
     ); 
 
 //////////////////////////////////////////////////////////////////////////////

@@ -19,23 +19,22 @@ module RS5_FPGA_Platform
 (
     input  logic       clk,
     input  logic       reset_n,
-    input  logic       BTND,
     input  logic       UART_RX,
     output logic       UART_TX
 );
-    logic [31:0]            cpu_instruction_address, cpu_instruction;
-    logic [31:0]            cpu_data_address, cpu_data_in, cpu_data_out;
-    logic                   cpu_operation_enable, enable_ram, enable_peripherals, enable_rtc, enable_plic;
-    logic                   enable_rtc_r, enable_plic_r, enable_peripherals_r;
-    logic [63:0]            mtime;
-    logic [31:0]            data_bram, data_plic, data_peripherals;
-    logic [63:0]            data_rtc;
-    logic [3:0]             cpu_write_enable;
-    logic                   stall;
-    logic                   mei, mti;
-    logic                   interrupt_ack;
-    logic [31:0]            irq;
-    logic [i_cnt:1]         irq_peripherals, iack_peripherals;
+    logic [31:0]       cpu_instruction_address, cpu_instruction;
+    logic [31:0]       cpu_data_address, cpu_data_in, cpu_data_out;
+    logic              cpu_operation_enable, enable_ram, enable_peripherals, enable_rtc, enable_plic;
+    logic              enable_rtc_r, enable_plic_r, enable_peripherals_r;
+    logic [63:0]       mtime;
+    logic [31:0]       data_bram, data_plic, data_peripherals;
+    logic [63:0]       data_rtc;
+    logic [3:0]        cpu_write_enable;
+    logic              stall;
+    logic              mei, mti;
+    logic              interrupt_ack;
+    logic [31:0]       irq;
+    logic [i_cnt:1]    irq_peripherals, iack_peripherals;
 
     assign irq = {20'h0, mei, 3'h0, mti, 7'h0};
 
@@ -203,7 +202,6 @@ module RS5_FPGA_Platform
         .data_address_i (cpu_data_address),
         .data_i         (cpu_data_out),
         .data_o         (data_peripherals),
-        .BTND           (BTND),
         .UART_TX        (UART_TX),
         .UART_RX        (UART_RX),
         .interrupt_req_o(irq_peripherals),
