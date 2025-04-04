@@ -1,7 +1,7 @@
 module UART_RX_CTRL 
   //import RS5_pkg::*;
 #(
-	parameter int unsigned CLK_FREQUENCE = 250_000_000,
+	parameter int unsigned CLK_FREQUENCE = 100_000_000,
 	parameter int unsigned BAUD_RATE 	 = 115_200
 )(
 	input  logic        clk,

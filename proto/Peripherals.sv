@@ -3,8 +3,7 @@ module Peripherals
 #(
     parameter i_cnt = 1,
     parameter int unsigned CLK_FREQUENCE = 100_000_000,
-	parameter int unsigned BAUD_RATE 	 = 115_200,
-    parameter CLKS_PER_BIT_UART = 868
+	parameter int unsigned BAUD_RATE 	 = 115_200
 )
 (
     input  logic            clk,
@@ -124,12 +123,16 @@ module Peripherals
     //////////////////////////////////////////////////////////////////////////////
     // UART TX
     //////////////////////////////////////////////////////////////////////////////
-    UART_TX_CTRL #(CLKS_PER_BIT_UART) UART(
-        .CLK        (clk),
-        .SEND       (UART_TX_send),            // enable send
-        .DATA       (UART_TX_data),            // 8 bit 
-        .READY      (UART_TX_ready),           // ready to serialize new data
-        .UART_TX    (UART_TX)                  // serialized data
+    UART_TX_CTRL #(
+        .CLK_FREQUENCE(CLK_FREQUENCE),
+        .BAUD_RATE(BAUD_RATE) 
+    ) UART_TX_CTRL (
+        .i_Clock     (clk),
+        .reset_n     (reset_n),
+        .i_Tx_DV     (UART_TX_send),            // enable send
+        .i_Tx_Byte   (UART_TX_data),            // 8 bit 
+        .o_Tx_Active (!UART_TX_ready),           // ready to serialize new data
+        .o_Tx_Serial (UART_TX)                  // serialized data
     );
     
     //////////////////////////////////////////////////////////////////////////////
