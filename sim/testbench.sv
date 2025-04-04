@@ -40,6 +40,7 @@ module testbench
     localparam bit           VEnable         = 1'b0;
     localparam int           VLEN            = 256;
     localparam bit           BRANCHPRED      = 1'b1;
+    
 
 `ifndef SYNTH
     localparam bit           PROFILING       = 1'b1;
@@ -47,7 +48,7 @@ module testbench
 `endif
 
     localparam int           MEM_WIDTH       = 65_536;
-    localparam string        BIN_FILE        = "../app/riscv-tests/test.bin";
+    localparam string        BIN_FILE        = "../app/hello/hello.bin";
 
     localparam int           i_cnt = 1;
 

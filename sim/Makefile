@@ -17,14 +17,14 @@ VERILATOR_FLAGS += -Wall
 #VERILATOR_FLAGS += --gdbbt
 
 # Input files for Verilator
-VERILATOR_INPUT = testbench.sv
+VERILATOR_INPUT = testbench_RS5_controller.sv
 
 default: run
 
 run:
 	@echo
 	@echo "-- VERILATE ----------------"
-	@$(VERILATOR) $(VERILATOR_FLAGS) $(VERILATOR_INPUT) --binary -j 0 -I../rtl -I../rtl/aes --timescale 1ns/1ns
+	@$(VERILATOR) $(VERILATOR_FLAGS) $(VERILATOR_INPUT) --binary -j 0 -I../rtl/platform -I../rtl/cpu -I../rtl/aes -I../proto  --timescale 1ns/1ns
 
 	@echo
 	@echo "-- RUN ---------------------"
