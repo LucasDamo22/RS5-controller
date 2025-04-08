@@ -19,7 +19,7 @@
 // RAM MEMORY
 //////////////////////////////////////////////////////////////////////////////
 
-`include "../rtl/cpu/RS5_pkg.sv"
+`include "../cpu/RS5_pkg.sv"
 
 module RAM_mem
     import RS5_pkg::*;

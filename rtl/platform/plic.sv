@@ -1,4 +1,4 @@
-`include "RS5_pkg.sv"
+`include "../cpu/RS5_pkg.sv"
 
 module plic
 	import RS5_pkg::*;
