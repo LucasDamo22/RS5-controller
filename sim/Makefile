@@ -30,7 +30,7 @@ run:
 	@echo "-- RUN ---------------------"
 	@rm -rf debug
 	@mkdir -p debug
-	@obj_dir/Vtestbench
+	@obj_dir/Vtestbench_RS5_controller
 
 	@echo
 	@echo "-- DONE --------------------"

@@ -1,14 +1,43 @@
-add wave -noupdate -group TESTBENCH     -color {Turquoise}      /*
-add wave -noupdate -group RAM_MEM       -color {Violet}         /RAM_MEM/*
-add wave -noupdate -group DUT           -color {Blue Violet}    /dut/*
-add wave -noupdate -group FETCH         -color {Salmon}         /dut/fetch1/*
-add wave -noupdate -group DECODER       -color {Yellow}         /dut/decoder1/*
-add wave -noupdate -group EXECUTE       -color {Sienna}         /dut/execute1/*
-add wave -noupdate -group RETIRE        -color {Magenta}        /dut/retire1/*
-add wave -noupdate -group REGBANK       -color {Cyan}           /dut/RegFileFF_blk/regbankff/*
-add wave -noupdate -group CSRBANK       -color {Aquamarine}     /dut/CSRBank1/*
-add wave -noupdate -group VECTOR        -color {Blue Violet}    /dut/execute1/v_gen_on/vector/*
-add wave -noupdate -group VECTOR_RB     -color {Cyan}           /dut/execute1/v_gen_on/vector/vectorRegbank1/*
-add wave -noupdate -group VECTOR_CSR    -color {Magenta}        /dut/execute1/v_gen_on/vector/vectorCSRs1/*
-add wave -noupdate -group VECTOR_ALU    -color {Sienna}         /dut/execute1/v_gen_on/vector/vectorALU1/*
-add wave -noupdate -group VECTOR_LSU    -color {Turquoise}      /dut/execute1/v_gen_on/vector/vectorLSU1/*
+onerror {resume}
+quietly WaveActivateNextPane {} 0
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_CTRL/i_Clock
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_CTRL/reset_n
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_CTRL/i_Tx_DV
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_CTRL/i_Tx_Byte
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_CTRL/o_Tx_Active
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_CTRL/o_Tx_Serial
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/clk_i
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/rst_ni
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/buf_rst_i
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/rx_i
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/rx_ack_o
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/data_i
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/tx_o
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/tx_ack_i
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/ring_buf/data_o
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/BUFFER_write
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/BUFFER_read
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/BUFFER_read_avail
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/BUFFER_read_avail_comb
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/BUFFER_write_avail
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/BUFFER_data
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_busy
+add wave -noupdate /testbench_RS5_controller/dut/Peripherals1/UART_TX_data
+TreeUpdate [SetDefaultTree]
+WaveRestoreCursors {{Cursor 1} {499581 ns} 0}
+quietly wave cursor active 1
+configure wave -namecolwidth 198
+configure wave -valuecolwidth 100
+configure wave -justifyvalue left
+configure wave -signalnamewidth 1
+configure wave -snapdistance 10
+configure wave -datasetprefix 0
+configure wave -rowmargin 4
+configure wave -childrowmargin 2
+configure wave -gridoffset 0
+configure wave -gridperiod 1
+configure wave -griddelta 40
+configure wave -timeline 0
+configure wave -timelineunits ns
+update
+WaveRestoreZoom {499519 ns} {500026 ns}
