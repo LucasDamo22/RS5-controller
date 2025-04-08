@@ -21,16 +21,15 @@ module RingBuffer
     input  logic                     rst_ni,
     input  logic                     buf_rst_i,
 
-    input  logic                     rx_i,
-    output logic                     rx_ack_o,
+    input  logic                     rx_i, //write
+    output logic                     rx_ack_o, //can write
     input  logic [(DATA_SIZE - 1):0] data_i,
 
-    output logic                     tx_o,
-    input  logic                     tx_ack_i,
-    output logic [(DATA_SIZE - 1):0] data_o,
+    output logic                     tx_o, // can read
+    input  logic                     tx_ack_i, // read
+    output logic [(DATA_SIZE - 1):0] data_o
 
-    output logic                     full,
-    output logic                     empty
+
 
 );
 
