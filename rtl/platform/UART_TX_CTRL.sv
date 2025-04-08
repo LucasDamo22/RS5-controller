@@ -73,7 +73,7 @@ module UART_TX_CTRL
             o_Tx_Serial <= 1'b0;
              
             // Wait CLKS_PER_BIT_UART-1 clock cycles for start bit to finish
-            if (r_Clock_Count < CLKS_PER_BIT_UART-1)
+            if (int'(r_Clock_Count) < CLKS_PER_BIT_UART-1)
               begin
                 r_Clock_Count <= r_Clock_Count + 1;
                 r_SM_Main     <= s_TX_START_BIT;
@@ -91,7 +91,7 @@ module UART_TX_CTRL
           begin
             o_Tx_Serial <= r_Tx_Data[r_Bit_Index];
              
-            if (r_Clock_Count < CLKS_PER_BIT_UART-1)
+            if (int'(r_Clock_Count) < CLKS_PER_BIT_UART-1)
               begin
                 r_Clock_Count <= r_Clock_Count + 1;
                 r_SM_Main     <= s_TX_DATA_BITS;
@@ -121,7 +121,7 @@ module UART_TX_CTRL
             o_Tx_Serial <= 1'b1;
              
             // Wait CLKS_PER_BIT_UART-1 clock cycles for Stop bit to finish
-            if (r_Clock_Count < CLKS_PER_BIT_UART-1)
+            if (int'(r_Clock_Count) < CLKS_PER_BIT_UART-1)
               begin
                 r_Clock_Count <= r_Clock_Count + 1;
                 r_SM_Main     <= s_TX_STOP_BIT;
