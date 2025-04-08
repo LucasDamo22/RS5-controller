@@ -69,12 +69,15 @@ module testbench_RS5_controller
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// TB MODULES //////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-
+    /* verilator lint_off UNDRIVEN */
+    /* verilator lint_off UNUSEDSIGNAL */
     logic       UART_TX_send;
     logic       UART_TX_ready;
     logic       UART_RX_ready;
     logic [7:0] UART_TX_data;
     logic [7:0] UART_RX_data;
+    /* verilator lint_on UNUSEDSIGNAL */
+    /* verilator lint_on UNDRIVEN */
 
     UART_TX_CTRL #(
         .CLK_FREQUENCE(CLK_FREQUENCE),
@@ -84,7 +87,7 @@ module testbench_RS5_controller
         .reset_n     (reset_n),
         .i_Tx_DV     (UART_TX_send),            // enable send
         .i_Tx_Byte   (UART_TX_data),            // 8 bit 
-        .o_Tx_Active (!UART_TX_ready),           // ready to serialize new data
+        .o_Tx_Active (UART_TX_ready),           // ready to serialize new data
         .o_Tx_Serial (uart_rx)                  // serialized data
     );
 
@@ -102,7 +105,7 @@ module testbench_RS5_controller
 
     always@(posedge clk) begin
         if(UART_RX_ready) begin
-            $write("%d",UART_RX_data);
+            $write("%c",UART_RX_data);
         end
     end
 
