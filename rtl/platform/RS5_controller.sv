@@ -25,13 +25,18 @@ module RS5_controller
     input  logic       UART_RX_i,
     output logic       UART_TX_o
 );
-    logic [31:0]       cpu_instruction_address, cpu_instruction;
+    /* verilator lint_off UNUSEDSIGNAL */
+    logic [31:0]       cpu_instruction_address;
+    /* verilator lint_on UNUSEDSIGNAL */
+    logic [31:0]       cpu_instruction;
     logic [31:0]       cpu_data_address, cpu_data_in, cpu_data_out;
     logic              cpu_operation_enable, enable_ram, enable_peripherals, enable_rtc, enable_plic;
     logic              enable_rtc_r, enable_plic_r, enable_peripherals_r;
     logic [63:0]       mtime;
     logic [31:0]       data_ram, data_plic, data_peripherals;
+    /* verilator lint_off UNUSEDSIGNAL */
     logic [63:0]       data_rtc;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [3:0]        cpu_write_enable;
     logic              stall;
     logic              mei, mti;
@@ -227,8 +232,8 @@ module RS5_controller
         .data_address_i (cpu_data_address),
         .data_i         (cpu_data_out),
         .data_o         (data_peripherals),
-        .UART_TX        (UART_TX),
-        .UART_RX        (UART_RX),
+        .UART_TX        (UART_TX_o),
+        .UART_RX        (UART_RX_i),
         .interrupt_req_o(irq_peripherals),
         .interrupt_ack_i(iack_peripherals)
     );
