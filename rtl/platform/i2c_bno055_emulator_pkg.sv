@@ -1,8 +1,4 @@
-package i2c_bno_emulator;
-
-typedef enum integer {
-    REG_AMOUNT = 
-};
+package i2c_bno055_emulator_pkg;
 
 typedef enum logic[7:0]{
     /* Page id register definition */
