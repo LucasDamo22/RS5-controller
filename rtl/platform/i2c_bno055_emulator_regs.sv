@@ -10,11 +10,11 @@ module i2c_bno055_emulator_regs
     
     input  logic we_core_i,
     input  logic [((ADDR_SIZE)-1):0] core_addr_i,
-    input  logic [((DATA_SIZE)-1):0]  core_data_i,
-    output logic [((DATA_SIZE)-1):0]  core_data_o,
+    input  logic [((DATA_SIZE)-1):0] core_data_i,
+    output logic [((DATA_SIZE)-1):0] core_data_o,
     
     /* verilator lint_off UNUSEDSIGNAL */
-    input  logic we_spi_i,
+    input  logic we_i2c_i,
     input  logic [((ADDR_SIZE)-1):0] i2c_addr_i,
     input  logic [((ADDR_SIZE)-1):0] i2c_data_i,
     /* verilator lint_on UNUSEDSIGNAL */
