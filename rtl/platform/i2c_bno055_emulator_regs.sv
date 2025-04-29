@@ -464,7 +464,7 @@ always_ff @(posedge clk or negedge reset_n) begin
     end
 end
 
-logic [7:0] BNO055_LINEAR_ACCEL_DATA_Z_LSB_reg;;
+logic [7:0] BNO055_LINEAR_ACCEL_DATA_Z_LSB_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
         BNO055_LINEAR_ACCEL_DATA_Z_LSB_reg <= 8'b0;
