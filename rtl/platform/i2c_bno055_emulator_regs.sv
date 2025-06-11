@@ -8,13 +8,13 @@ module i2c_bno055_emulator_regs
     input  logic clk,
     input  logic reset_n,
     
-    input  logic we_core_i,
+    input  logic core_we_i,
     input  logic [((ADDR_SIZE)-1):0] core_addr_i,
     input  logic [((DATA_SIZE)-1):0] core_data_i,
     output logic [((DATA_SIZE)-1):0] core_data_o,
     
     /* verilator lint_off UNUSEDSIGNAL */
-    input  logic we_i2c_i,
+    input  logic i2c_we_i,
     input  logic [((ADDR_SIZE)-1):0] i2c_addr_i,
     input  logic [((ADDR_SIZE)-1):0] i2c_data_i,
     /* verilator lint_on UNUSEDSIGNAL */
@@ -32,8 +32,19 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_TEMP_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_TEMP_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_TEMP_ADDR) && core_we_i)
             BNO055_TEMP_reg <= core_data_i;
+    end
+end
+
+logic [7:0] BNO055_OPR_MODE_reg;
+always_ff @(posedge clk or negedge reset_n) begin
+    if(!reset_n) begin
+        BNO055_OPR_MODE_reg <= 8'b0;
+    end
+    else begin
+        if((i2c_addr_i == BNO055_OPR_MODE_ADDR) && i2c_we_i)
+            BNO055_OPR_MODE_reg <= i2c_data_i;
     end
 end
 
@@ -44,10 +55,10 @@ end
 logic [7:0] BNO055_ACCEL_DATA_X_LSB_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        BNO055_ACCEL_DATA_X_LSB_reg <= 8'b0;
+        BNO055_ACCEL_DATA_X_LSB_reg <= 8'h05;
     end
     else begin
-        if((core_addr_i == BNO055_ACCEL_DATA_X_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_ACCEL_DATA_X_LSB_ADDR) && core_we_i)
             BNO055_ACCEL_DATA_X_LSB_reg <= core_data_i;
     end
 end
@@ -55,10 +66,10 @@ end
 logic [7:0] BNO055_ACCEL_DATA_X_MSB_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        BNO055_ACCEL_DATA_X_MSB_reg <= 8'b0;
+        BNO055_ACCEL_DATA_X_MSB_reg <= 8'h06;
     end
     else begin
-        if((core_addr_i == BNO055_ACCEL_DATA_X_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_ACCEL_DATA_X_MSB_ADDR) && core_we_i)
             BNO055_ACCEL_DATA_X_MSB_reg <= core_data_i;
     end
 end
@@ -66,21 +77,23 @@ end
 logic [7:0] BNO055_ACCEL_DATA_Y_LSB_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        BNO055_ACCEL_DATA_Y_LSB_reg <= 8'b0;
+        BNO055_ACCEL_DATA_Y_LSB_reg <= 8'h07;
     end
     else begin
-        if((core_addr_i == BNO055_ACCEL_DATA_Y_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_ACCEL_DATA_Y_LSB_ADDR) && core_we_i)
             BNO055_ACCEL_DATA_Y_LSB_reg <= core_data_i;
+        else if((i2c_addr_i == BNO055_ACCEL_DATA_Y_LSB_ADDR) && i2c_we_i)
+            BNO055_ACCEL_DATA_Y_LSB_reg <= i2c_data_i;
     end
 end
 
 logic [7:0] BNO055_ACCEL_DATA_Y_MSB_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        BNO055_ACCEL_DATA_Y_MSB_reg <= 8'b0;
+        BNO055_ACCEL_DATA_Y_MSB_reg <= 8'h08;
     end
     else begin
-        if((core_addr_i == BNO055_ACCEL_DATA_Y_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_ACCEL_DATA_Y_MSB_ADDR) && core_we_i)
             BNO055_ACCEL_DATA_Y_MSB_reg <= core_data_i;
     end
 end
@@ -88,10 +101,10 @@ end
 logic [7:0] BNO055_ACCEL_DATA_Z_LSB_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        BNO055_ACCEL_DATA_Z_LSB_reg <= 8'b0;
+        BNO055_ACCEL_DATA_Z_LSB_reg <= 8'h09;
     end
     else begin
-        if((core_addr_i == BNO055_ACCEL_DATA_Z_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_ACCEL_DATA_Z_LSB_ADDR) && core_we_i)
             BNO055_ACCEL_DATA_Z_LSB_reg <= core_data_i;
     end
 end
@@ -99,10 +112,10 @@ end
 logic [7:0] BNO055_ACCEL_DATA_Z_MSB_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        BNO055_ACCEL_DATA_Z_MSB_reg <= 8'b0;
+        BNO055_ACCEL_DATA_Z_MSB_reg <= 8'h0A;
     end
     else begin
-        if((core_addr_i == BNO055_ACCEL_DATA_Z_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_ACCEL_DATA_Z_MSB_ADDR) && core_we_i)
             BNO055_ACCEL_DATA_Z_MSB_reg <= core_data_i;
     end
 end
@@ -119,7 +132,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_MAG_DATA_X_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_MAG_DATA_X_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_MAG_DATA_X_LSB_ADDR) && core_we_i)
             BNO055_MAG_DATA_X_LSB_reg <= core_data_i;
     end
 end
@@ -130,7 +143,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_MAG_DATA_X_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_MAG_DATA_X_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_MAG_DATA_X_MSB_ADDR) && core_we_i)
             BNO055_MAG_DATA_X_MSB_reg <= core_data_i;
     end
 end
@@ -141,7 +154,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_MAG_DATA_Y_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_MAG_DATA_Y_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_MAG_DATA_Y_LSB_ADDR) && core_we_i)
             BNO055_MAG_DATA_Y_LSB_reg <= core_data_i;
     end
 end
@@ -152,7 +165,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_MAG_DATA_Y_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_MAG_DATA_Y_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_MAG_DATA_Y_MSB_ADDR) && core_we_i)
             BNO055_MAG_DATA_Y_MSB_reg <= core_data_i;
     end
 end
@@ -163,7 +176,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_MAG_DATA_Z_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_MAG_DATA_Z_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_MAG_DATA_Z_LSB_ADDR) && core_we_i)
             BNO055_MAG_DATA_Z_LSB_reg <= core_data_i;
     end
 end
@@ -174,7 +187,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_MAG_DATA_Z_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_MAG_DATA_Z_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_MAG_DATA_Z_MSB_ADDR) && core_we_i)
             BNO055_MAG_DATA_Z_MSB_reg <= core_data_i;
     end
 end
@@ -191,7 +204,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GYRO_DATA_X_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GYRO_DATA_X_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GYRO_DATA_X_LSB_ADDR) && core_we_i)
             BNO055_GYRO_DATA_X_LSB_reg <= core_data_i;
     end
 end
@@ -202,7 +215,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GYRO_DATA_X_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GYRO_DATA_X_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GYRO_DATA_X_MSB_ADDR) && core_we_i)
             BNO055_GYRO_DATA_X_MSB_reg <= core_data_i;
     end
 end
@@ -213,7 +226,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GYRO_DATA_Y_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GYRO_DATA_Y_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GYRO_DATA_Y_LSB_ADDR) && core_we_i)
             BNO055_GYRO_DATA_Y_LSB_reg <= core_data_i;
     end
 end
@@ -224,7 +237,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GYRO_DATA_Y_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GYRO_DATA_Y_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GYRO_DATA_Y_MSB_ADDR) && core_we_i)
             BNO055_GYRO_DATA_Y_MSB_reg <= core_data_i;
     end
 end
@@ -235,7 +248,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GYRO_DATA_Z_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GYRO_DATA_Z_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GYRO_DATA_Z_LSB_ADDR) && core_we_i)
             BNO055_GYRO_DATA_Z_LSB_reg <= core_data_i;
     end
 end
@@ -246,7 +259,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GYRO_DATA_Z_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GYRO_DATA_Z_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GYRO_DATA_Z_MSB_ADDR) && core_we_i)
             BNO055_GYRO_DATA_Z_MSB_reg <= core_data_i;
     end
 end
@@ -262,7 +275,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_EULER_H_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_EULER_H_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_EULER_H_LSB_ADDR) && core_we_i)
             BNO055_EULER_H_LSB_reg <= core_data_i;
     end
 end
@@ -273,7 +286,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_EULER_H_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_EULER_H_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_EULER_H_MSB_ADDR) && core_we_i)
             BNO055_EULER_H_MSB_reg <= core_data_i;
     end
 end
@@ -284,7 +297,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_EULER_R_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_EULER_R_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_EULER_R_LSB_ADDR) && core_we_i)
             BNO055_EULER_R_LSB_reg <= core_data_i;
     end
 end
@@ -295,7 +308,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_EULER_R_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_EULER_R_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_EULER_R_MSB_ADDR) && core_we_i)
             BNO055_EULER_R_MSB_reg <= core_data_i;
     end
 end
@@ -306,7 +319,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_EULER_P_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_EULER_P_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_EULER_P_LSB_ADDR) && core_we_i)
             BNO055_EULER_P_LSB_reg <= core_data_i;
     end
 end
@@ -317,7 +330,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_EULER_P_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_EULER_P_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_EULER_P_MSB_ADDR) && core_we_i)
             BNO055_EULER_P_MSB_reg <= core_data_i;
     end
 end
@@ -333,7 +346,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_W_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_W_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_W_LSB_ADDR) && core_we_i)
             BNO055_QUATERNION_DATA_W_LSB_reg <= core_data_i;
     end
 end
@@ -344,7 +357,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_W_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_W_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_W_MSB_ADDR) && core_we_i)
             BNO055_QUATERNION_DATA_W_MSB_reg <= core_data_i;
     end
 end
@@ -355,7 +368,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_X_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_X_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_X_LSB_ADDR) && core_we_i)
             BNO055_QUATERNION_DATA_X_LSB_reg <= core_data_i;
     end
 end
@@ -366,7 +379,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_X_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_X_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_X_MSB_ADDR) && core_we_i)
             BNO055_QUATERNION_DATA_X_MSB_reg <= core_data_i;
     end
 end
@@ -377,7 +390,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_Y_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_Y_LSB_reg) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_Y_LSB_reg) && core_we_i)
             BNO055_QUATERNION_DATA_Y_LSB_reg <= core_data_i;
     end
 end
@@ -388,7 +401,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_Y_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_Y_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_Y_MSB_ADDR) && core_we_i)
             BNO055_QUATERNION_DATA_Y_MSB_reg <= core_data_i;
     end
 end
@@ -399,7 +412,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_Z_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_Z_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_Z_LSB_ADDR) && core_we_i)
             BNO055_QUATERNION_DATA_Z_LSB_reg <= core_data_i;
     end
 end
@@ -410,7 +423,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_QUATERNION_DATA_Z_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_QUATERNION_DATA_Z_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_QUATERNION_DATA_Z_MSB_ADDR) && core_we_i)
             BNO055_QUATERNION_DATA_Z_MSB_reg <= core_data_i;
     end
 end
@@ -426,7 +439,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_LINEAR_ACCEL_DATA_X_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR) && core_we_i)
             BNO055_LINEAR_ACCEL_DATA_X_LSB_reg <= core_data_i;
     end
 end
@@ -437,7 +450,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_LINEAR_ACCEL_DATA_X_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_X_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_X_MSB_ADDR) && core_we_i)
             BNO055_LINEAR_ACCEL_DATA_X_MSB_reg <= core_data_i;
     end
 end
@@ -448,7 +461,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_LINEAR_ACCEL_DATA_Y_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Y_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Y_LSB_ADDR) && core_we_i)
             BNO055_LINEAR_ACCEL_DATA_Y_LSB_reg <= core_data_i;
     end
 end
@@ -459,7 +472,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_LINEAR_ACCEL_DATA_Y_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Y_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Y_MSB_ADDR) && core_we_i)
             BNO055_LINEAR_ACCEL_DATA_Y_MSB_reg <= core_data_i;
     end
 end
@@ -470,7 +483,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_LINEAR_ACCEL_DATA_Z_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Z_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Z_LSB_ADDR) && core_we_i)
             BNO055_LINEAR_ACCEL_DATA_Z_LSB_reg <= core_data_i;
     end
 end
@@ -481,7 +494,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_LINEAR_ACCEL_DATA_Z_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Z_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_LINEAR_ACCEL_DATA_Z_MSB_ADDR) && core_we_i)
             BNO055_LINEAR_ACCEL_DATA_Z_MSB_reg <= core_data_i;
     end
 end
@@ -497,7 +510,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GRAVITY_DATA_X_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GRAVITY_DATA_X_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GRAVITY_DATA_X_LSB_ADDR) && core_we_i)
             BNO055_GRAVITY_DATA_X_LSB_reg <= core_data_i;
     end
 end
@@ -508,7 +521,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GRAVITY_DATA_X_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GRAVITY_DATA_X_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GRAVITY_DATA_X_MSB_ADDR) && core_we_i)
             BNO055_GRAVITY_DATA_X_MSB_reg <= core_data_i;
     end
 end
@@ -519,7 +532,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GRAVITY_DATA_Y_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GRAVITY_DATA_Y_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GRAVITY_DATA_Y_LSB_ADDR) && core_we_i)
             BNO055_GRAVITY_DATA_Y_LSB_reg <= core_data_i;
     end
 end
@@ -530,7 +543,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GRAVITY_DATA_Y_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GRAVITY_DATA_Y_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GRAVITY_DATA_Y_MSB_ADDR) && core_we_i)
             BNO055_GRAVITY_DATA_Y_MSB_reg <= core_data_i;
     end
 end
@@ -541,7 +554,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GRAVITY_DATA_Z_LSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GRAVITY_DATA_Z_LSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GRAVITY_DATA_Z_LSB_ADDR) && core_we_i)
             BNO055_GRAVITY_DATA_Z_LSB_reg <= core_data_i;
     end
 end
@@ -552,7 +565,7 @@ always_ff @(posedge clk or negedge reset_n) begin
         BNO055_GRAVITY_DATA_Z_MSB_reg <= 8'b0;
     end
     else begin
-        if((core_addr_i == BNO055_GRAVITY_DATA_Z_MSB_ADDR) && we_core_i)
+        if((core_addr_i == BNO055_GRAVITY_DATA_Z_MSB_ADDR) && core_we_i)
             BNO055_GRAVITY_DATA_Z_MSB_reg <= core_data_i;
     end
 end
@@ -571,6 +584,8 @@ always_comb begin
     unique case (i2c_addr_i)
         //temp
         BNO055_TEMP_ADDR:                    i2c_data = BNO055_TEMP_reg;
+        //config
+        BNO055_OPR_MODE_ADDR:                i2c_data = BNO055_OPR_MODE_reg;
         //accel
         BNO055_ACCEL_DATA_X_LSB_ADDR:        i2c_data = BNO055_ACCEL_DATA_X_LSB_reg;
         BNO055_ACCEL_DATA_X_MSB_ADDR:        i2c_data = BNO055_ACCEL_DATA_X_MSB_reg;

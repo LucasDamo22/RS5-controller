@@ -7,11 +7,12 @@ module i2c_generic #(
     input logic clk,
     input logic reset_n,
 
-    input logic [23:0] command_i,
+    input logic [24:0] command_i,
     input logic        we_en_i,
     input logic        sda_i,
     output logic [7:0] data_o,
     output logic       data_valid_o,
+    output logic       done,
     output logic       sda_o,
     output logic       sda_tristate_en_o,
     output logic       scl_o
@@ -19,14 +20,15 @@ module i2c_generic #(
 
 
 
-typedef enum logic[6:0] { 
-    IDLE                = 7'b0000001,
-    GEN_START_CONDITION = 7'b0000010,
-    SEND_ADDR           = 7'b0000100,
-    WAIT_ACK            = 7'b0001000,
-    WRITE               = 7'b0010000,
-    READ                = 7'b0100000,
-    GEN_STOP_CONDITION  = 7'b1000000
+typedef enum logic[7:0] { 
+    IDLE                = 8'b00000001,
+    GEN_START_CONDITION = 8'b00000010,
+    SEND_ADDR           = 8'b00000100,
+    WAIT_ACK            = 8'b00001000,
+    WRITE_REG_ADDR      = 8'b00010000,
+    WRITE_REG_DATA      = 8'b00100000,
+    READ                = 8'b01000000,
+    GEN_STOP_CONDITION  = 8'b10000000
 } states;
 
 states current_state, next_state;
@@ -42,7 +44,8 @@ end
 
 logic send_addr_done;
 logic ack_received;
-logic write_byte_done;
+logic write_data_byte_done;
+logic write_addr_byte_done;
 logic started;
 logic stopped;
 logic read_complete;
@@ -52,9 +55,11 @@ logic falling_scl;
 logic scl_r;
 logic third_quarter;
 logic clk_count_half;
+logic[7:0] data_r_o;
+
+logic[24:0] command_reg;
 
 
-logic[23:0] command_reg;
 always_ff @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
         command_reg <= '0;
@@ -66,12 +71,43 @@ always_ff @(posedge clk or negedge reset_n) begin
     end
 end
 
+logic only_write_reg_addr;
+assign only_write_reg_addr = command_reg[24];
 
 logic operation_read;
 assign operation_read = command_reg[16];
 
 logic operation_write;
 assign operation_write = ~command_reg[16];
+
+always_ff@(posedge clk or negedge reset_n) begin
+    if(!reset_n) begin
+        data_o <= '0;
+        data_valid_o <= '0;    
+    end
+    else begin
+        if(operation_read && read_byte_done) begin
+            data_o <= data_r_o;
+            data_valid_o <= 1'b1;
+        end 
+        else
+            data_valid_o <= 1'b0;
+    end
+end
+
+always_ff@(posedge clk or negedge reset_n) begin
+    if(!reset_n) begin
+        done <= '0;
+    end
+    else begin
+        if(current_state == GEN_STOP_CONDITION && stopped) begin
+            done <= 1'b1;
+        end 
+        else begin
+            done <= 1'b0;
+        end
+    end
+end
 
 always_comb begin
     next_state  = IDLE;
@@ -95,31 +131,39 @@ always_comb begin
                 next_state = SEND_ADDR;
         end
         WAIT_ACK: begin 
-            if(ack_received) begin
+            if(ack_received && falling_scl) begin
                 if(operation_read)
                     if(read_complete)
                         next_state = GEN_STOP_CONDITION;
                     else 
                         next_state = READ;
                 if(operation_write) begin
-                    if(write_byte_done)
-                        next_state = GEN_STOP_CONDITION;
+                    if(write_addr_byte_done)
+                        if(only_write_reg_addr)
+                            next_state = GEN_STOP_CONDITION;
+                        else
+                            next_state = WRITE_REG_DATA;
                     else 
-                        next_state = WRITE;
+                        next_state = WRITE_REG_ADDR;
                 end
             end
             else begin
                 next_state = WAIT_ACK;
             end
         end     
-        WRITE: begin 
-            if(write_byte_done) begin
+        WRITE_REG_ADDR: begin 
+            if(write_addr_byte_done) begin
                 next_state = WAIT_ACK;
             end
             else begin
-                next_state = WRITE;
+                next_state = WRITE_REG_ADDR;
             end
         end
+        WRITE_REG_DATA:
+            if(write_data_byte_done)
+                next_state = GEN_STOP_CONDITION;
+            else
+                next_state = WRITE_REG_DATA;
         READ: begin 
             if(read_byte_done)
                 next_state = WAIT_ACK;
@@ -133,6 +177,7 @@ always_comb begin
             else
                 next_state =  GEN_STOP_CONDITION;
         end
+    
     endcase
 end
 
@@ -155,7 +200,6 @@ end
 logic[2:0] bit_index;
 logic[3:0] bit_count;
 
-logic[7:0] data_r_o;
 
 logic [15:0] read_size;
 logic [15:0] read_compare;
@@ -184,6 +228,31 @@ always_ff@(posedge clk or negedge reset_n) begin
 end
 assign read_complete = (read_compare >= read_size);
 
+logic[7:0] reg_addr;
+logic[7:0] reg_data;
+
+always_ff@(posedge clk or negedge reset_n) begin
+    if(!reset_n) begin
+        reg_addr <= '0;
+        reg_data <= '0;
+    end
+    else begin
+        unique case (current_state)
+            IDLE: begin
+                reg_addr <= '0;
+                reg_data <= '0;
+            end
+            GEN_START_CONDITION: begin
+                if(operation_write) begin
+                    reg_addr <= command_reg[15:8];
+                    reg_data <= command_reg[7:0];
+                end
+            end
+            default: ;
+        endcase
+    end
+end
+
 always_ff@(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
         read_byte_done <= '0;
@@ -191,7 +260,7 @@ always_ff@(posedge clk or negedge reset_n) begin
     else begin
         unique case(current_state)
             READ: begin
-                if(bit_count >= 7) begin
+                if(bit_count >= 8) begin
                     read_byte_done <= 1'b1;
                 end
             end
@@ -202,7 +271,7 @@ end
 
 always_ff@(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        data <= '0;
+        data_r_o <= '0;
     end
     else begin
         unique case(current_state)
@@ -238,15 +307,21 @@ always_ff@(posedge clk or negedge reset_n) begin
                         sda_o <= 1'b0;
                 
             end
+            WRITE_REG_ADDR: begin
+                sda_o <= reg_addr[bit_index];
+            end
+            WRITE_REG_DATA: begin
+                sda_o <= reg_data[bit_index];
+            end
             GEN_STOP_CONDITION: begin
-                if(quarter_period) begin
+                if(quarter_period && scl_o == 1'b1) begin
                     sda_o <= 1'b1;
                 end
                 else begin
                     sda_o <= 1'b0;
                 end    
             end
-            default: sda_o <= 1'b1;
+            default: ;
         endcase
     end
 end
@@ -256,7 +331,7 @@ always_ff@(posedge clk or negedge reset_n) begin
         bit_count <= '0;
     end
     else begin
-        if(current_state inside{READ, SEND_ADDR, WRITE}) begin
+        if(current_state inside{READ, SEND_ADDR, WRITE_REG_ADDR, WRITE_REG_DATA}) begin
             if(falling_scl) begin
                 bit_count <= bit_count + 1'b1;
             end
@@ -266,23 +341,58 @@ always_ff@(posedge clk or negedge reset_n) begin
     end
 end
 
+always_ff@(posedge clk or negedge reset_n) begin
+    if(!reset_n) begin
+        write_addr_byte_done <= '0;
+    end
+    else begin
+        unique case(current_state)
+            WRITE_REG_ADDR: begin
+                if(bit_count >= 7 && falling_scl) begin
+                    write_addr_byte_done <= 1'b1;
+                end
+            end
+            IDLE: begin
+                write_addr_byte_done <= '0;
+            end
+            default: ;
+        endcase
+    end
+end
+
+always_ff@(posedge clk or negedge reset_n) begin
+    if(!reset_n) begin
+        write_data_byte_done <= '0;
+    end
+    else begin
+        unique case(current_state)
+            WRITE_REG_DATA: begin
+                if(bit_count >= 7 && falling_scl) begin
+                    write_data_byte_done <= 1'b1;
+                end
+            end
+            IDLE: begin
+                write_data_byte_done <= '0;
+            end
+            default: ;
+        endcase
+    end
+end
+
 assign send_addr_done = (current_state == SEND_ADDR && bit_count >= 7 && falling_scl);
 
 always_ff@(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        bit_index <= '0;
+        bit_index <= 3'b111;
     end
     else begin
-        if(current_state == SEND_ADDR) begin
+        if(current_state inside{SEND_ADDR, READ, WRITE_REG_ADDR, WRITE_REG_DATA } ) begin
             if(falling_scl) begin
-                bit_index <= bit_index + 1'b1;
+                bit_index <= bit_index - 1'b1;
             end
         end
-        if(current_state == READ) begin
-            if(falling_scl) begin
-                bit_index <= bit_index + 1'b1;
-            end
-        end
+        else 
+            bit_index <= 3'b111;
     end
 end
 
@@ -297,7 +407,7 @@ logic enable_clk_count;
 
 logic en_scl;
 always_comb begin
-    en_scl = (current_state inside {GEN_START_CONDITION, SEND_ADDR, WAIT_ACK, READ, WRITE, GEN_STOP_CONDITION});
+    en_scl = (current_state inside {GEN_START_CONDITION, SEND_ADDR, WAIT_ACK, READ, WRITE_REG_ADDR, WRITE_REG_DATA, GEN_STOP_CONDITION});
     enable_clk_count = en_scl || current_state == GEN_STOP_CONDITION;
 end
 
@@ -318,6 +428,8 @@ always_ff@(posedge clk or negedge reset_n) begin
             else
                 clk_count <= clk_count + 1;
         end
+        if(current_state == IDLE) 
+            clk_count <= '0;
     end
 end
 logic slave_select_ack;
@@ -373,7 +485,7 @@ always_ff@(posedge clk or negedge reset_n) begin
         end
         else if(operation_write) begin
             unique case(current_state)
-                WAIT_ACK: sda_tristate_en_o <= slave_select_ack ? 1'b0 : 1'b1;
+                WAIT_ACK: sda_tristate_en_o <= 1'b0;
                 default: sda_tristate_en_o <= 1'b1;
             endcase
         end

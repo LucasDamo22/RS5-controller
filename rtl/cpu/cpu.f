@@ -1,0 +1,21 @@
+-F ./aes/aes.f
+amo.sv
+CSRBank.sv
+decode.sv
+decompresser.sv
+div.sv
+execute.sv
+fetch.sv
+lrsc.sv
+mmu.sv
+mulNbits.sv
+mul.sv
+regbank.sv
+retire.sv
+RS5_pkg.sv
+RS5.sv
+vectorALU.sv
+vectorCSRs.sv
+vectorLSU.sv
+vectorRegbank.sv
+vectorUnit.sv

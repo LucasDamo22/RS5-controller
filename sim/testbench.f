@@ -1,0 +1,2 @@
+-incdir ../rtl/platform/
+-F ../rtl/platform/platform.f

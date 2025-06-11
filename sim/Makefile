@@ -35,6 +35,9 @@ run:
 	@echo
 	@echo "-- DONE --------------------"
 
+xrun:
+	xrun -sv -timescale 1ns/1ps -F testbench.f -top testbench_RS5_controller -access rwc -input xmsim_probe.tcl
+
 lint:
 	@$(VERILATOR) $(VERILATOR_FLAGS) $(VERILATOR_INPUT) --lint-only -I../rtl -I../rtl/aes --timing
 
@@ -42,5 +45,13 @@ clean:
 	@echo
 	@echo "-- CLEAN -------------------"
 	rm -rf obj_dir debug
+	rm -rf obj_dir debug
+	rm -rf xcelium.d
+	rm -rf jgproject
+	rm -rf waves.shm
+	rm -rf xrun.*
+	rm -rf *.diag
+	rm -rf .simvision
+	rm -rf *.cde
 
 .PHONY: run clean
