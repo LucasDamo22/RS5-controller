@@ -319,11 +319,24 @@ always_ff@(posedge clk or negedge reset_n) begin
 end
 always_ff@(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
-        sda_tristate_en_o <= 1'b0;
+        sda_tristate_en_o <= 1'b1;
     end 
     else begin
-        if(current_state == SLAVE_SELECT_ACK)
-            sda_tristate_en_o <= 1'b0;
+        if(operation_write) begin
+            unique case (current_state)
+                SLAVE_SELECT_ACK: sda_tristate_en_o <= 1'b0;
+                ACK:              sda_tristate_en_o <= 1'b0;
+                default:          sda_tristate_en_o <= 1'b1;
+            endcase
+        end else if (operation_read) begin
+            unique case (current_state)
+                SLAVE_SELECT_ACK: sda_tristate_en_o <= 1'b0;
+                ACK:              sda_tristate_en_o <= 1'b1;
+                default:          sda_tristate_en_o <= 1'b0;
+            endcase
+        end else begin
+            sda_tristate_en_o <= 1'b1;
+        end
     end
 end
 
